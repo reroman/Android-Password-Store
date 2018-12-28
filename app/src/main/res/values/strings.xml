@@ -175,8 +175,10 @@
     <string name="pwgen_numerals">Numerals</string>
     <string name="pwgen_symbols">Symbols</string>
     <string name="pwgen_uppercase">Uppercase</string>
+    <string name="pwgen_lowercase">Lowercase</string>
     <string name="pwgen_ambiguous">Ambiguous</string>
     <string name="pwgen_pronounceable">Pronounceable</string>
+    <string name="pwgen_no_chars_error">No characters included</string>
 
     <!-- ssh keygen fragment -->
     <string name="ssh_keygen_length">Length</string>

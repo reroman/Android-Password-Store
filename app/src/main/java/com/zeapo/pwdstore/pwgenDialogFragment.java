@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import com.zeapo.pwdstore.pwgen.pwgen;
@@ -55,6 +57,9 @@ public class pwgenDialogFragment extends DialogFragment {
         checkBox = view.findViewById(R.id.uppercase);
         checkBox.setChecked(!prefs.getBoolean("A", false));
 
+        checkBox = view.findViewById(R.id.lowercase);
+        checkBox.setChecked(!prefs.getBoolean("L", false));
+
         checkBox = view.findViewById(R.id.ambiguous);
         checkBox.setChecked(!prefs.getBoolean("B", false));
 
@@ -90,7 +95,12 @@ public class pwgenDialogFragment extends DialogFragment {
             public void onShow(DialogInterface dialog) {
                 setPreferences();
                 TextView textView = view.findViewById(R.id.passwordText);
-                textView.setText(pwgen.generate(getActivity().getApplicationContext()).get(0));
+                try {
+                    textView.setText(pwgen.generate(getActivity().getApplicationContext()).get(0));
+                } catch (pwgen.pwgenExeption e) {
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    textView.setText("");
+                }
 
                 Button b = ad.getButton(AlertDialog.BUTTON_NEUTRAL);
                 b.setOnClickListener(new View.OnClickListener() {
@@ -98,7 +108,12 @@ public class pwgenDialogFragment extends DialogFragment {
                     public void onClick(View v) {
                         setPreferences();
                         TextView textView = view.findViewById(R.id.passwordText);
-                        textView.setText(pwgen.generate(callingActivity.getApplicationContext()).get(0));
+                        try {
+                            textView.setText(pwgen.generate(callingActivity.getApplicationContext()).get(0));
+                        } catch (pwgen.pwgenExeption e) {
+                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                            textView.setText("");
+                        }
                     }
                 });
             }
@@ -122,6 +137,9 @@ public class pwgenDialogFragment extends DialogFragment {
         }
         if (!((CheckBox) getDialog().findViewById(R.id.pronounceable)).isChecked()) {
             preferences.add("s");
+        }
+        if (!((CheckBox) getDialog().findViewById(R.id.lowercase)).isChecked()) {
+            preferences.add("L");
         }
         EditText editText = getDialog().findViewById(R.id.lengthNumber);
         try {

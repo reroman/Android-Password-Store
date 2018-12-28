@@ -3,6 +3,8 @@ package com.zeapo.pwdstore.pwgen;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.zeapo.pwdstore.R;
+
 import java.util.ArrayList;
 
 public class pwgen {
@@ -11,6 +13,7 @@ public class pwgen {
     static final int SYMBOLS    = 0x0004;
     static final int AMBIGUOUS  = 0x0008;
     static final int NO_VOWELS  = 0x0010;
+    static final int LOWERS     = 0x0020;
 
     static final String DIGITS_STR = "0123456789";
     static final String UPPERS_STR = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -20,7 +23,7 @@ public class pwgen {
     static final String VOWELS_STR = "01aeiouyAEIOUY";
 
     // No a, c, n, h, H, C, 1, N
-    private static final String pwOptions = "0ABsvy";
+    private static final String pwOptions = "0ALBsvy";
 
     /**
      * Sets password generation preferences.
@@ -32,6 +35,7 @@ public class pwgen {
      *                <tr><td>Option</td><td>Description</td></tr>
      *                <tr><td>0</td><td>don't include numbers</td></tr>
      *                <tr><td>A</td><td>don't include uppercase letters</td></tr>
+     *                <tr><td>L</td><td>don't include lowercase letters</td></tr>
      *                <tr><td>B</td><td>don't include ambiguous charactersl</td></tr>
      *                <tr><td>s</td><td>generate completely random passwords</td></tr>
      *                <tr><td>v</td><td>don't include vowels</td></tr>
@@ -77,12 +81,12 @@ public class pwgen {
      *            preferences file 'pwgen'
      * @return list of generated passwords
      */
-    public static ArrayList<String> generate(Context ctx) {
+    public static ArrayList<String> generate(Context ctx) throws pwgenExeption {
         SharedPreferences prefs
                 = ctx.getSharedPreferences("pwgen", Context.MODE_PRIVATE);
 
         boolean phonemes = true;
-        int pwgenFlags = DIGITS | UPPERS;
+        int pwgenFlags = DIGITS | UPPERS | LOWERS;
 
         for (char option : pwOptions.toCharArray()) {
             if (prefs.getBoolean(String.valueOf(option), false)) {
@@ -92,6 +96,9 @@ public class pwgen {
                         break;
                     case 'A':
                         pwgenFlags &= ~UPPERS;
+                        break;
+                    case 'L':
+                        pwgenFlags &= ~LOWERS;
                         break;
                     case 'B':
                         pwgenFlags |= AMBIGUOUS;
@@ -111,15 +118,14 @@ public class pwgen {
             }
         }
 
+        if( pwgenFlags == 0 || pwgenFlags == AMBIGUOUS )
+            throw new pwgenExeption(ctx.getResources().getString(R.string.pwgen_no_chars_error));
+
+
         int length = prefs.getInt("length", 8);
-        if (length < 5) {
+        if (length < 5 || (pwgenFlags & UPPERS) == 0 && (pwgenFlags & LOWERS) == 0) {
             phonemes = false;
-        }
-        if (length <= 2) {
-            pwgenFlags &= ~UPPERS;
-        }
-        if (length <= 1) {
-            pwgenFlags &= ~DIGITS;
+            pwgenFlags &= ~AMBIGUOUS;
         }
 
         ArrayList<String> passwords = new ArrayList<>();
@@ -134,5 +140,10 @@ public class pwgen {
         return passwords;
     }
 
+    public static class pwgenExeption extends Throwable {
+        public pwgenExeption(String string) {
+            super(string);
+        }
+    }
 }
 

@@ -72,6 +72,7 @@ class pw_phonemes {
      *                <tr><td>1</td><td>include at least one uppercase letter</td></tr>
      *                <tr><td>2</td><td>include at least one symbol</td></tr>
      *                <tr><td>3</td><td>don't include ambiguous characters</td></tr>
+     *                <tr><td>5</td><td>include at least one lowercase letter</td></tr>
      *                </table>
      * @return the generated password
      */
@@ -119,7 +120,8 @@ class pw_phonemes {
 
                 // Handle UPPERS
                 if ((pwFlags & pwgen.UPPERS) > 0) {
-                    if ((first || (flags & CONSONANT) > 0)
+                    if ((pwFlags & pwgen.LOWERS) == 0
+                            || (first || (flags & CONSONANT) > 0)
                             && (randnum.number(10) < 2)) {
                         int index = password.length() - length;
                         password = password.substring(0, index)

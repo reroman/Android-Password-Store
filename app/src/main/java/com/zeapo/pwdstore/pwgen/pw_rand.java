@@ -15,6 +15,7 @@ class pw_rand {
      *                <tr><td>2</td><td>include at least one symbol</td></tr>
      *                <tr><td>3</td><td>don't include ambiguous characters</td></tr>
      *                <tr><td>4</td><td>don't include vowels</td></tr>
+     *                <tr><td>5</td><td>include at least one lowercase letter</td></tr>
      *                </table>
      * @return the generated password
      */
@@ -31,7 +32,9 @@ class pw_rand {
         if ((pwFlags & pwgen.UPPERS) > 0) {
             bank += pwgen.UPPERS_STR;
         }
-        bank += pwgen.LOWERS_STR;
+        if ((pwFlags & pwgen.LOWERS) > 0) {
+            bank += pwgen.LOWERS_STR;
+        }
         if ((pwFlags & pwgen.SYMBOLS) > 0) {
             bank += pwgen.SYMBOLS_STR;
         }
@@ -62,8 +65,11 @@ class pw_rand {
                 if (pwgen.SYMBOLS_STR.contains(val)) {
                     featureFlags &= ~pwgen.SYMBOLS;
                 }
+                if (pwgen.LOWERS_STR.contains(val)) {
+                    featureFlags &= ~pwgen.LOWERS;
+                }
             }
-        } while ((featureFlags & (pwgen.UPPERS | pwgen.DIGITS | pwgen.SYMBOLS))
+        } while ((featureFlags & (pwgen.UPPERS | pwgen.DIGITS | pwgen.SYMBOLS | pwgen.LOWERS))
                 > 0);
         return password;
     }
